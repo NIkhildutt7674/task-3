@@ -1,0 +1,109 @@
+//-------------------------------------
+// SALES KPIs
+//-------------------------------------
+
+Total Sales =
+SUM(sales_data_cleaned[Total_Sales])
+
+Total Orders =
+DISTINCTCOUNT(sales_data_cleaned[Order_ID])
+
+Total Quantity =
+SUM(sales_data_cleaned[Quantity])
+
+Average Selling Price =
+AVERAGE(sales_data_cleaned[Unit_Price])
+
+Average Order Value =
+DIVIDE([Total Sales], [Total Orders])
+
+
+//-------------------------------------
+// PRODUCT ANALYSIS
+//-------------------------------------
+
+Best Selling Product =
+VAR TopProduct =
+    TOPN(
+        1,
+        SUMMARIZE(
+            sales_data_cleaned,
+            sales_data_cleaned[Product],
+            "Sales", SUM(sales_data_cleaned[Total_Sales])
+        ),
+        [Sales], DESC
+    )
+RETURN
+MAXX(TopProduct, sales_data_cleaned[Product])
+
+
+Best Category =
+VAR TopCategory =
+    TOPN(
+        1,
+        SUMMARIZE(
+            sales_data_cleaned,
+            sales_data_cleaned[Category],
+            "Sales", SUM(sales_data_cleaned[Total_Sales])
+        ),
+        [Sales], DESC
+    )
+RETURN
+MAXX(TopCategory, sales_data_cleaned[Category])
+
+
+//-------------------------------------
+// CUSTOMER ANALYSIS
+//-------------------------------------
+
+Total Customers =
+DISTINCTCOUNT(sales_data_cleaned[Customer_ID])
+
+Average Age =
+AVERAGE(sales_data_cleaned[Age])
+
+High Value Customers =
+CALCULATE(
+    DISTINCTCOUNT(sales_data_cleaned[Customer_ID]),
+    sales_data_cleaned[High_Value_Customer] = "Yes"
+)
+
+
+//-------------------------------------
+// GEOGRAPHIC ANALYSIS
+//-------------------------------------
+
+Top City =
+VAR TopCity =
+    TOPN(
+        1,
+        SUMMARIZE(
+            sales_data_cleaned,
+            sales_data_cleaned[City],
+            "Sales", SUM(sales_data_cleaned[Total_Sales])
+        ),
+        [Sales], DESC
+    )
+RETURN
+MAXX(TopCity, sales_data_cleaned[City])
+
+
+//-------------------------------------
+// TIME ANALYSIS
+//-------------------------------------
+
+Monthly Sales =
+SUM(sales_data_cleaned[Total_Sales])
+
+Sales Growth % =
+DIVIDE(
+    [Total Sales] -
+        CALCULATE(
+            [Total Sales],
+            PREVIOUSMONTH(sales_data_cleaned[Order_Date])
+        ),
+    CALCULATE(
+        [Total Sales],
+        PREVIOUSMONTH(sales_data_cleaned[Order_Date])
+    )
+)
